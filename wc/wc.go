@@ -50,9 +50,17 @@ func countBytes(input io.Reader) (int, error) {
 }
 
 func main() {
-	linePtr := flag.Bool("l", false, "Count lines")
-	wordPtr := flag.Bool("w", false, "Count words")
-	bytePtr := flag.Bool("c", false, "Count bytes")
+	var line bool
+	flag.BoolVar(&line, "l", false, "Count lines")
+	flag.BoolVar(&line, "lines", false, "Count lines")
+
+	var word bool
+	flag.BoolVar(&word, "w", false, "Count words")
+	flag.BoolVar(&word, "words", false, "Count words")
+
+	var byte bool
+	flag.BoolVar(&byte, "c", false, "Count bytes")
+	flag.BoolVar(&byte, "bytes", false, "Count bytes")
 
 	flag.Parse()
 
@@ -83,21 +91,21 @@ func main() {
 		return
 	}
 
-	if *linePtr {
+	if line {
 		lines, err := countLines(input)
 		if err != nil {
 			fmt.Println("Error reading input: ", err)
 			os.Exit(1)
 		}
 		fmt.Println(lines, filename)
-	} else if *wordPtr {
+	} else if word {
 		words, err := countWords(input)
 		if err != nil {
 			fmt.Println("Error reading input: ", err)
 			os.Exit(1)
 		}
 		fmt.Println(words, filename)
-	} else if *bytePtr {
+	} else if byte {
 		bytes, err := countBytes(input)
 		if err != nil {
 			fmt.Println("Error reading input: ", err)
