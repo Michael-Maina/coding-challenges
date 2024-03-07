@@ -49,6 +49,24 @@ func countBytes(input io.Reader) (int, error) {
 	return bytes, nil
 }
 
+// countAll counts the number of lines, words and bytes in the input
+func countAll(input io.ReadSeeker)(int, int, int, error) {
+	scanner := bufio.NewScanner(input)
+	lines, _ := countLines(input)
+	input.Seek(0, 0)
+
+	words, _ := countWords(input)
+	input.Seek(0, 0)
+
+	bytes, _ := countBytes(input)
+	input.Seek(0, 0)
+
+	if err := scanner.Err(); err != nil {
+		return 0, 0, 0, err
+	}
+	return lines, words, bytes, nil
+}
+
 func main() {
 	var line bool
 	flag.BoolVar(&line, "l", false, "Count lines")
@@ -64,7 +82,7 @@ func main() {
 
 	flag.Parse()
 
-	var input io.Reader
+	var input io.ReadSeeker
 	filename := flag.Arg(0)
 
 	if filename != "" {
@@ -84,11 +102,6 @@ func main() {
 			fmt.Println("No input source provided")
 			os.Exit(1)
 		}
-	}
-
-	if flag.NFlag() == 0 {
-		fmt.Println("wc requires one flag to work, '-l', '-w' or '-c'")
-		return
 	}
 
 	if line {
@@ -112,5 +125,12 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Println(bytes, filename)
+	} else {
+		lines, words, bytes, err := countAll(input)
+		if err != nil {
+			fmt.Println("Error reading input: ", err)
+			os.Exit(1)
+		}
+		fmt.Println(lines, words, bytes, filename)
 	}
 }
