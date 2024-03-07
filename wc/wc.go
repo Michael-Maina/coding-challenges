@@ -21,8 +21,23 @@ func countLines(input io.Reader) (int, error) {
 	return lines, nil
 }
 
+// countWords counts the number of words in the input
+func countWords(input io.Reader) (int, error) {
+	scanner := bufio.NewScanner(input)
+	words := 0
+	scanner.Split(bufio.ScanWords)
+	for scanner.Scan() {
+		words++
+	}
+	if err := scanner.Err(); err != nil {
+		return 0, err
+	}
+	return words, nil
+}
+
 func main() {
 	linePtr := flag.Bool("l", false, "Count lines")
+	wordPtr := flag.Bool("w", false, "Count words")
 
 	flag.Parse()
 
@@ -49,7 +64,7 @@ func main() {
 	}
 
 	if flag.NFlag() == 0 {
-		fmt.Println("wc requires the flag -l to work")
+		fmt.Println("wc requires one flag to work, '-l' or '-w'")
 		return
 	}
 
@@ -60,5 +75,12 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Println(lines, filename)
+	} else if *wordPtr {
+		words, err := countWords(input)
+		if err != nil {
+			fmt.Println("Error reading input: ", err)
+			os.Exit(1)
+		}
+		fmt.Println(words, filename)
 	}
 }
