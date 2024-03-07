@@ -78,7 +78,7 @@ func main() {
 	} else {
 		// If no filename is provided, use stdin
 		stat, _ := os.Stdin.Stat()
-		if (stat.Mode() & os.ModeCharDevice) == 0 {
+		if stat.Size() > 0 {
 			input = os.Stdin
 		} else {
 			fmt.Println("No input source provided")
