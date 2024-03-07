@@ -35,9 +35,24 @@ func countWords(input io.Reader) (int, error) {
 	return words, nil
 }
 
+// countBytes counts the number of bytes in the input
+func countBytes(input io.Reader) (int, error) {
+	scanner := bufio.NewScanner(input)
+	bytes := 0
+	scanner.Split(bufio.ScanBytes)
+	for scanner.Scan() {
+		bytes++
+	}
+	if err := scanner.Err(); err != nil {
+		return 0, err
+	}
+	return bytes, nil
+}
+
 func main() {
 	linePtr := flag.Bool("l", false, "Count lines")
 	wordPtr := flag.Bool("w", false, "Count words")
+	bytePtr := flag.Bool("c", false, "Count bytes")
 
 	flag.Parse()
 
@@ -64,7 +79,7 @@ func main() {
 	}
 
 	if flag.NFlag() == 0 {
-		fmt.Println("wc requires one flag to work, '-l' or '-w'")
+		fmt.Println("wc requires one flag to work, '-l', '-w' or '-c'")
 		return
 	}
 
@@ -82,5 +97,12 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Println(words, filename)
+	} else if *bytePtr {
+		bytes, err := countBytes(input)
+		if err != nil {
+			fmt.Println("Error reading input: ", err)
+			os.Exit(1)
+		}
+		fmt.Println(bytes, filename)
 	}
 }
