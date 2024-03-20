@@ -16,7 +16,7 @@ func TestParseJSONFiles(t *testing.T) {
 	}{
 		// Define test cases for step1
 		{"step1", "valid.json", true},
-		{"step1", "invalid.json", true},
+		{"step1", "invalid.json", false},
 
 		// // Define test cases for step2
 		{"step2", "valid.json", true},
