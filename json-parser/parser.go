@@ -8,15 +8,16 @@ import (
 )
 
 const (
-	curlyOpen  rune = '{'
-	curlyClose rune = '}'
-	// quoteOpen rune = '"'
-	// quoteClose rune = '"'
-	// arrayOpen rune = '['
-	// arrayClose rune = ']'
+	curlyOpen  string = "{"
+	curlyClose string = "}"
+	// quote string = "\""
+	// colon string = ":"
+	// comma string = ","
+	// arrayOpen string = "["
+	// arrayClose string = ]"
 )
 
-func Lexer(input io.Reader) ([]rune, error) {
+func Lexer(input io.Reader) ([]string, error) {
 	scanner := bufio.NewScanner(input)
 	fileInput := []string{}
 	for scanner.Scan() {
@@ -29,13 +30,12 @@ func Lexer(input io.Reader) ([]rune, error) {
 	// If the input is empty, return an error
 	if len(fileInput) == 0 {
 		msg := fmt.Sprintln("invalid json input, file is empty")
-		return []rune{}, errors.New(msg)
+		return nil, errors.New(msg)
 	}
-	tokens := []rune(fileInput[0])
-	return tokens, nil
+	return fileInput, nil
 }
 
-func Parse(tokens []rune) (bool, string) {
+func Parse(tokens []string) (bool, string) {
 	// Check if the input is a valid JSON
 	if tokens[0] != curlyOpen && tokens[len(tokens)-1] != curlyClose {
 		return false, fmt.Sprintln("invalid json input")
