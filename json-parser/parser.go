@@ -1,11 +1,10 @@
-package main
+package jsonparser
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
+	"github.com/pkg/errors"
 	"io"
-	"os"
 )
 
 const (
@@ -17,7 +16,7 @@ const (
 	// arrayClose rune = ']'
 )
 
-func Lex(input io.Reader) ([]rune, error) {
+func Lexer(input io.Reader) ([]rune, error) {
 	scanner := bufio.NewScanner(input)
 	fileInput := []string{}
 	for scanner.Scan() {
@@ -29,45 +28,17 @@ func Lex(input io.Reader) ([]rune, error) {
 
 	// If the input is empty, return an error
 	if len(fileInput) == 0 {
-		fmt.Println("Invalid JSON input, file is empty. Exiting")
-		os.Exit(1)
+		msg := fmt.Sprintln("invalid json input, file is empty")
+		return []rune{}, errors.New(msg)
 	}
-
 	tokens := []rune(fileInput[0])
 	return tokens, nil
 }
 
-func Parse(tokens []rune) {
+func Parse(tokens []rune) (bool, string) {
+	// Check if the input is a valid JSON
 	if tokens[0] != curlyOpen && tokens[len(tokens)-1] != curlyClose {
-		fmt.Println("Invalid JSON input. Exiting.")
-		os.Exit(1)
+		return false, fmt.Sprintln("invalid json input")
 	}
-	fmt.Println("Valid JSON input. Parsing...")
-}
-
-func main() {
-	flag.Parse()
-	var input io.Reader
-
-	if filename := flag.Arg(0); filename != "" {
-		file, err := os.Open(filename)
-		if err != nil {
-			fmt.Println("Error opening file: ", err)
-			os.Exit(1)
-		}
-		defer file.Close()
-		input = file
-	} else {
-		// If no filename is provided, use stdin
-		stat, _ := os.Stdin.Stat()
-		if stat.Size() > 0 {
-			input = os.Stdin
-		} else {
-			fmt.Println("No input source provided")
-			os.Exit(1)
-		}
-	}
-	lexedString, _ := Lex(input)
-	Parse(lexedString)
-	fmt.Println("Parsing JSON")
+	return true, fmt.Sprintln("valid json input")
 }
