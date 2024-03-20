@@ -3,8 +3,10 @@ package jsonparser
 import (
 	"bufio"
 	"fmt"
-	"github.com/pkg/errors"
 	"io"
+	"strings"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -32,11 +34,20 @@ func Lexer(input io.Reader) ([]string, error) {
 		msg := fmt.Sprintln("invalid json input, file is empty")
 		return nil, errors.New(msg)
 	}
+
 	return fileInput, nil
 }
 
 func Parse(tokens []string) (bool, string) {
 	// Check if the input is a valid JSON
+	if len(tokens[0]) > 1 {
+		if !strings.HasPrefix(tokens[0], curlyOpen) && !strings.HasSuffix(tokens[0], curlyClose) {
+			return false, fmt.Sprintln("invalid json input")
+			} else {
+			return true, fmt.Sprintln("valid json input")
+		}
+	}
+
 	if tokens[0] != curlyOpen && tokens[len(tokens)-1] != curlyClose {
 		return false, fmt.Sprintln("invalid json input")
 	}
