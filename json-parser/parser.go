@@ -13,6 +13,7 @@ const (
 	curlyClose string = "}"
 	quote      string = "\""
 	colon      string = ":"
+	colonSpace string = ": "
 	comma      string = ","
 	// arrayOpen string = "["
 	// arrayClose string = ]"
@@ -40,14 +41,14 @@ func Lexer(input io.Reader) ([]string, error) {
 func Parse(tokens []string) (bool, string) {
 	// Check if the single line input is a valid JSON
 	if len(tokens[0]) > 1 {
-		return parseKeySingle(tokens)
+		return parseSingle(tokens)
 	}
 
 	// Check if multi-line input is a valid JSON
-	return parseKeyMulti(tokens)
+	return parseMulti(tokens)
 }
 
-func parseKeySingle(tokens []string) (bool, string) {
+func parseSingle(tokens []string) (bool, string) {
 	if !strings.HasPrefix(tokens[0], curlyOpen) && !strings.HasSuffix(tokens[0], curlyClose) {
 		return false, fmt.Sprintln("invalid json input")
 	}
@@ -67,15 +68,15 @@ func parseKeySingle(tokens []string) (bool, string) {
 		}
 
 		key, _ := strings.CutSuffix(token, colon)
-		if strings.Count(key, quote) != 2 {
-			return false, fmt.Sprintln("invalid json input")
+		if isValid, msg := parseKey(key); !isValid{
+			return false, fmt.Sprintln(msg)
 		}
 	}
 
 	return true, fmt.Sprintln("valid json input")
 }
 
-func parseKeyMulti(tokens []string) (bool, string) {
+func parseMulti(tokens []string) (bool, string) {
 	if tokens[0] != curlyOpen && tokens[len(tokens)-1] != curlyClose {
 		return false, fmt.Sprintln("invalid json input")
 	}
@@ -92,7 +93,7 @@ func parseKeyMulti(tokens []string) (bool, string) {
 		if commaPresent {
 			commaCount++
 		}
-		keyValue := strings.Split(token, ": ")
+		keyValue := strings.Split(token, colonSpace)
 		splitTokens = append(splitTokens, keyValue)
 	}
 
@@ -102,10 +103,18 @@ func parseKeyMulti(tokens []string) (bool, string) {
 
 	// Check if key has double quotation marks
 	for _, pair := range splitTokens {
-		if strings.Count(pair[0], quote) != 2 {
-			return false, fmt.Sprintln("invalid json input")
+		if isValid, msg := parseKey(pair[0]); !isValid{
+			return false, fmt.Sprintln(msg)
 		}
 	}
 
+	return true, fmt.Sprintln("valid json input")
+}
+
+// Check if the key is a string
+func parseKey(key string) (bool, string) {
+	if strings.Count(key, quote) != 2 {
+		return false, fmt.Sprintln("invalid json input")
+	}
 	return true, fmt.Sprintln("valid json input")
 }
