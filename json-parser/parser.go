@@ -6,6 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"io"
 	"strings"
+	"strconv"
 )
 
 const (
@@ -71,6 +72,11 @@ func parseSingle(tokens []string) (bool, string) {
 		if isValid, msg := parseKey(key); !isValid{
 			return false, fmt.Sprintln(msg)
 		}
+
+		value, _ := strings.CutPrefix(token, colonSpace)
+		if isValid, msg := parseValue(value); !isValid {
+			return false, fmt.Sprintln(msg)
+		}
 	}
 
 	return true, fmt.Sprintln("valid json input")
@@ -106,6 +112,9 @@ func parseMulti(tokens []string) (bool, string) {
 		if isValid, msg := parseKey(pair[0]); !isValid{
 			return false, fmt.Sprintln(msg)
 		}
+		if isValid, msg := parseValue(pair[1]); !isValid {
+			return false, fmt.Sprintln(msg)
+		}
 	}
 
 	return true, fmt.Sprintln("valid json input")
@@ -117,4 +126,21 @@ func parseKey(key string) (bool, string) {
 		return false, fmt.Sprintln("invalid json input")
 	}
 	return true, fmt.Sprintln("valid json input")
+}
+
+// Check if the value is a string, int, or boolean
+func parseValue(value string) (bool, string) {
+	if strings.Count(value, quote) == 2 {
+		return true, fmt.Sprintln("valid json input")
+	}
+
+	if _, err := strconv.Atoi(value); err == nil {
+		return true, fmt.Sprintln("valid json input")
+	}
+
+	if value == "true" || value == "false" {
+		return true, fmt.Sprintln("valid json input")
+	}
+
+	return false, fmt.Sprintln("invalid json input")
 }
