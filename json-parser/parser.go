@@ -51,16 +51,36 @@ func parseKeySingle(tokens []string) (bool, string) {
 	if !strings.HasPrefix(tokens[0], curlyOpen) && !strings.HasSuffix(tokens[0], curlyClose) {
 		return false, fmt.Sprintln("invalid json input")
 	}
+	tokens[0], _ = strings.CutPrefix(tokens[0], curlyOpen)  // Delete curly brackets
+	tokens[0], _ = strings.CutSuffix(tokens[0], curlyClose) // Delete curly brackets
+
+	var splitTokens []string
+
+	splitTokens = append(splitTokens, strings.SplitAfter(tokens[0], ",")...)
+	if splitTokens[len(splitTokens)-1] == "" {
+		return false, fmt.Sprintln("invalid json input")
+	}
+
+	for index, token := range splitTokens {
+		if strings.HasSuffix(token, comma) {
+			splitTokens[index] = strings.TrimSuffix(token, comma)
+		}
+
+		key, _ := strings.CutSuffix(token, colon)
+		if strings.Count(key, quote) != 2 {
+			return false, fmt.Sprintln("invalid json input")
+		}
+	}
 
 	return true, fmt.Sprintln("valid json input")
 }
 
 func parseKeyMulti(tokens []string) (bool, string) {
-	if tokens[0] != curlyOpen && tokens[len(tokens) - 1] != curlyClose {
+	if tokens[0] != curlyOpen && tokens[len(tokens)-1] != curlyClose {
 		return false, fmt.Sprintln("invalid json input")
 	}
 
-	tokens = tokens[1 : len(tokens) - 1] // Delete curly brackets
+	tokens = tokens[1 : len(tokens)-1] // Delete curly brackets
 
 	var (
 		splitTokens [][]string
