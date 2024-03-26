@@ -43,7 +43,7 @@ func TestParseJSONFiles(t *testing.T) {
 			isValid, msg := Parse(json_data)
 
 			if !tc.validity && isValid {
-				t.Errorf(msg)
+				t.Errorf("Got %q, which is %t.", msg, tc.validity)
 			}
 		})
 	}
