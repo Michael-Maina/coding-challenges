@@ -21,7 +21,10 @@ In this step, the goal was to parse a valid simple JSON object ('{}') and an inv
 
 #### Step 2: Parse String Key-Value Pairs
 
-In this step, the parser was extended to parse a simple JSON object containing string keys and string values, e.g., {"key": "value"}.
+In this step, the parser was extended to parse a simple JSON object containing string keys and string values, e.g.,
+```json
+{"key": "value"}
+```
 
 #### Step 3: Parse Various Data Types
 
